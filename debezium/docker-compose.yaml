@@ -1,0 +1,60 @@
+version: '2'
+services:
+  zookeeper:
+    image: debezium/zookeeper:${DEBEZIUM_VERSION}
+    container_name: zookeeper
+    ports:
+     - 2181:2181
+     - 2888:2888
+     - 3888:3888
+    volumes:
+     - ./zk_data:/var/lib/zookeeper/data
+     - ./zk_log:/var/lib/zookeeper/log
+
+  kafka:
+    image: debezium/kafka:${DEBEZIUM_VERSION}
+    container_name: kafka
+    ports:
+     - 9092:9092
+    links:
+     - zookeeper
+    volumes:
+     - ./kafka_data:/var/lib/kafka/data
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+     - ADVERTISED_HOST_NAME=${LOCAL_IPADDR}
+
+  redis:
+    image: redis:6.2.5-alpine
+    container_name: redis
+    ports:
+     - 6379:6379
+    volumes:
+     - ./redis_data:/data
+      
+  mysql:
+    image: mysql:8.0.19
+    container_name: mysql
+    ports:
+     - 3306:3306      
+    volumes:
+     - ./mysql_data:/var/lib/mysql
+    environment:
+     - MYSQL_ROOT_PASSWORD=debezium
+     - MYSQL_USER=dbadmin
+     - MYSQL_PASSWORD=AdWvA6Ln
+      
+  connect:
+    image: debezium/connect:${DEBEZIUM_VERSION}
+    container_name: kafka_connect
+    ports:
+     - 8083:8083
+    links:
+     - kafka
+     - mysql
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=kafka_connect
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+     - STATUS_STORAGE_TOPIC=my_connect_statuses

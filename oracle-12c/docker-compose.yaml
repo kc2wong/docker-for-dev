@@ -1,0 +1,9 @@
+version: '2'
+services:
+  oracle_12c:
+    image: store/oracle/database-enterprise:12.2.0.1
+    container_name: oracle_12c
+    ports:
+     - 1521:1521
+    volumes:
+     - ./ora_data:/ORCL

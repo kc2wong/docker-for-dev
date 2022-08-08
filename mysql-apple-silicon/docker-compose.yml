@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  mysql:
+    image: arm64v8/mysql:oracle
+    container_name: mysql-apple-silicon
+    ports:
+      - 3306:3306
+    volumes:
+     - ./mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=zaq12wsx
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
